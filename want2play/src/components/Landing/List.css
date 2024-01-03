@@ -1,0 +1,16 @@
+li {
+    list-style-type: none;
+    outline: 1px ;
+    outline-style: solid;
+    width: 120px;
+    justify-items: center;
+    display: inline-block;
+}
+
+ul{
+    padding-left: 0px;
+}
+
+
+
+
