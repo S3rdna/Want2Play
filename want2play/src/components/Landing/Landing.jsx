@@ -19,18 +19,20 @@ class Landing extends Component {
 
     render() {
 
-
-
-
+        const clickHandle = () => {
+            console.log("this is here now");
+            Navigate("/lists");
+        }
 
         return (
+
             <>
                 <h2>Want to play: {this.state.pageURL}</h2>
                 <label>Who are you? <input placeholder="Name"></input></label>
                 <br />
                 <label>Password <input placeholder="Optional"></input></label>
                 <br />
-                <Link to="/lists">lists</Link>
+                <button onClick={clickHandle}>fuck ya mom</button>
             </>
         )
     }
