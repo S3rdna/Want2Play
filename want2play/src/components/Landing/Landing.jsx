@@ -32,7 +32,7 @@ class Landing extends Component {
                 <br />
                 <label>Password <input placeholder="Optional"></input></label>
                 <br />
-                <button onClick={clickHandle}>fuck ya mom</button>
+                <button onClick={clickHandle}>lol</button>
             </>
         )
     }

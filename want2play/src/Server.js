@@ -4,7 +4,7 @@ import sqlite3 from 'sqlite3'
 
 const app = express()
 
-let db = new sqlite3.Database('C:/Users/A/Documents/code/holding/Want2Play/want2play/src/db/data2.sqlite', (err) => {
+const db = new sqlite3.Database('./src/db/data2.sqlite', (err) => {
     if (err) {
         return console.error(err.message);
     }
