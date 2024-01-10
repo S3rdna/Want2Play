@@ -1,11 +1,12 @@
 import { Component } from "react";
 import { Navigate } from "react-router-dom";
+import Landing from "./Landing";
 
 class LandingGenerate extends Component {
 
     render() {
         const genId = generateID()
-        return <Navigate to=`/${genId}` />
+        return <Navigate to={`/${genId}`} element={<Landing />} />
     }
 }
 
@@ -20,3 +21,5 @@ function generateID() {
     return id;
 }
 
+
+export default LandingGenerate

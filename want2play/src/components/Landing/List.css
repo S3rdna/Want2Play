@@ -1,16 +1,15 @@
 li {
     list-style-type: none;
-    outline: 1px ;
+    outline: 1px;
     outline-style: solid;
     width: 120px;
     justify-items: center;
     display: inline-block;
 }
 
-ul{
+ul {
     padding-left: 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
-
-
-
-
