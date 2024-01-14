@@ -5,6 +5,12 @@ import List from './List.jsx'
 
 class Landing extends Component {
 
+    constructor() {
+        super()
+        this.whoRU = this.whoRU.bind(this);
+        this.goToList = this.goToList.bind(this);
+    }
+
 
     state = {
         pageURL: getCode(window.location.href),
@@ -37,11 +43,16 @@ class Landing extends Component {
         const inpName = document.getElementById('nameInput').value.replace(" ", "");
         if (inpName == "") { console.log("returned"); return }
 
-        axios.post('http://localhost:8080/testpost', {
+        const inpPass = document.getElementById('passInput').value.replace(" ", "");
+        const room = this.state.pageURL
+
+        axios.post('http://localhost:8080/whoRu', {
             name: inpName,
+            password: inpPass,
+            room: room,
         }).then((res) => {
-            const t2 = res.data
-            console.log(t2)
+            const t2 = res
+            console.log("in react", t2)
         }).catch((err) => {
             console.log(err)
         })
@@ -49,10 +60,17 @@ class Landing extends Component {
     }
 
     gettest() {
-        axios.get('http://localhost:8080/test').then((res) => {
+        axios.get('http://localhost:8080/read').then((res) => {
             console.log(res.data)
         })
         console.log('get done')
+    }
+
+    resethandle() {
+        axios.get('http://localhost:8080/reset').then((res) => {
+            res.status(200)
+        }).catch((err) => (err))
+        console.log('reset shite')
     }
 
     render() {
@@ -66,11 +84,13 @@ class Landing extends Component {
                 <h2>Want to play: {this.state.pageURL}</h2>
                 <label>Who are you? <input placeholder="Name" id="nameInput" /></label>
                 <br />
-                <label>Password <input placeholder="Optional" /></label>
+                <label>Password <input placeholder="Optional" id="passInput" /></label>
                 <br />
                 <button onClick={this.goToList}>lol</button>
                 <button onClick={this.whoRU}>psot</button>
                 <button onClick={this.gettest}>get</button>
+                <br />
+                <button onClick={this.resethandle}>reset</button>
             </>
         )
     }
