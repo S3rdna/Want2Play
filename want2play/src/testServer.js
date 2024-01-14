@@ -11,6 +11,7 @@ const db = new sqlite3.Database('./db/data.db', (err) => {
     console.log('Connected to the in-memory SQLite database.');
 });
 
+
 // Endpoint to create a sample table
 app.get('/test', (req, res) => {
     db.run(`CREATE TABLE SampleTable (

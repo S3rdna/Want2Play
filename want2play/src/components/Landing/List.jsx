@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './List.css';
 
-function List(props) {
+function List() {
     const [games, setGames] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const loc = useLocation();
