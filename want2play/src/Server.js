@@ -1,5 +1,6 @@
 import express from 'express'
 import sqlite3 from 'sqlite3'
+import cors from 'cors'
 
 
 const app = express()
@@ -21,12 +22,13 @@ const tablesql = `CREATE TABLE IF NOT EXISTS sessions
 db.run(tablesql)
 
 app.use(express.json())
+app.use(cors())
 app.use((req, res, next) => {
-    res.header("access-control-allow-origin", "http://localhost:5173"); // replace with the origin you want to allow
-    res.header("access-control-allow-headers", "origin, x-requested-with, content-type, accept, authorization");
     if (req.method === 'OPTIONS') {
-        res.header('access-control-allow-methods', 'PUT, POST, PATCH, DELETE, GET');
-        return res.status(200).json({});
+        res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // replace with the origin you want to allow
+        res.header("Access-Control-Allow-Headers", "origin, x-requested-with, content-type, accept, authorization");
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        res.status(200);
     }
     next();
 });
@@ -96,7 +98,9 @@ app.post("/whoRu", (req, res) => {
     const password = req.body['password']
     const user = { name: name, password: password }
 
-    console.log(hasSession(room, user))
+    hasSession(room, user)
+
+    res.status(200)
 
     //    const sql = `INSERT INTO sessions (room,createDate,user) VALUES (?,?,?)`
     //    db.run(sql, [room, createDate, JSON.stringify(user)], (err) => {
@@ -105,35 +109,43 @@ app.post("/whoRu", (req, res) => {
     //            return
     //        }
     //    })
-    console.log(room, createDate, user)
+    //    console.log(room, createDate, user)
 })
 
 
 
 function hasSession(room = null, user = null) {
+    //get all sessions available right now
     db.all('SELECT * FROM sessions', (err, rows) => {
-        rows.forEach((row) => {
-            try {
+        // check if room is in db 
+        // check if user is in room
+        // yes- navigate to /genID/name 
+        // no - add {user: user, data: ""} to the db under the room data section
+        //rows.filter((row) => console.log(row['user']))
+        console.log(rows)
 
-                const data = (row)
-                if (room != data['room']) { console.log('not in this hoe2'); return 0 }
-
-                const name = JSON.parse(row['user'])['name']
-                const pass = JSON.parse(row['user'])['password']
-                console.log('usercheck:', user, { name: name, password: pass })
-                if (JSON.stringify(user) != JSON.stringify({ name: name, password: pass })) { console.log('no user in sight') }
-
-
-                console.log(data)
-                console.log('name:', name, ', pass:', pass)
-
-
-            } catch (error) {
-                console.log('no session')
-                return 0
-            }
-        })
-        return 0
+        //        rows.forEach((row) => {
+        //            try {
+        //
+        //                const data = (row)
+        //                if (room != data['room']) { console.log('not in this hoe2'); return 0 }
+        //
+        //                const name = JSON.parse(row['user'])['name']
+        //                const pass = JSON.parse(row['user'])['password']
+        //                console.log('usercheck:', user, { name: name, password: pass })
+        //                if (JSON.stringify(user) != JSON.stringify({ name: name, password: pass })) { console.log('no user in sight') }
+        //
+        //
+        //                console.log(data)
+        //                console.log('name:', name, ', pass:', pass)
+        //
+        //
+        //            } catch (error) {
+        //                console.log('no session')
+        //                return 0
+        //            }
+        //        })
+        //        return 0
     })
 }
 
