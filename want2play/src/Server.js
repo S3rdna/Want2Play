@@ -33,6 +33,8 @@ app.use((req, res, next) => {
 
 app.get("/", (req, res) => {
     res.send("hello world");
+
+    console.log('test', hasSession('4MgoMd'))
 });
 
 app.post("/testpost", (req, res) => {
@@ -77,6 +79,8 @@ app.get("/read", (req, res) => {
 })
 
 app.post("/whoRu", (req, res) => {
+
+
     const room = req.body['room']
 
     //does room exist?
@@ -92,16 +96,45 @@ app.post("/whoRu", (req, res) => {
     const password = req.body['password']
     const user = { name: name, password: password }
 
-    const sql = `INSERT INTO sessions (room,createDate,user) VALUES (?,?,?)`
-    db.run(sql, [room, createDate, JSON.stringify(user)], (err) => {
-        if (err) {
-            res.status(400).json({ error: err.message })
-            return
-        }
-    })
+    console.log(hasSession(room, user))
+
+    //    const sql = `INSERT INTO sessions (room,createDate,user) VALUES (?,?,?)`
+    //    db.run(sql, [room, createDate, JSON.stringify(user)], (err) => {
+    //        if (err) {
+    //            res.status(400).json({ error: err.message })
+    //            return
+    //        }
+    //    })
     console.log(room, createDate, user)
 })
 
 
+
+function hasSession(room = null, user = null) {
+    db.all('SELECT * FROM sessions', (err, rows) => {
+        rows.forEach((row) => {
+            try {
+
+                const data = (row)
+                if (room != data['room']) { console.log('not in this hoe2'); return 0 }
+
+                const name = JSON.parse(row['user'])['name']
+                const pass = JSON.parse(row['user'])['password']
+                console.log('usercheck:', user, { name: name, password: pass })
+                if (JSON.stringify(user) != JSON.stringify({ name: name, password: pass })) { console.log('no user in sight') }
+
+
+                console.log(data)
+                console.log('name:', name, ', pass:', pass)
+
+
+            } catch (error) {
+                console.log('no session')
+                return 0
+            }
+        })
+        return 0
+    })
+}
 
 app.listen(8080);
