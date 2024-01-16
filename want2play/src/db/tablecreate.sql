@@ -1,16 +1,15 @@
-CREATE TABLE  Rooms (
+CREATE TABLE  Sessions (
     roomID : TEXT,
     createDate : DATE,
-    userDataID : INT,
-    PRIMARY KEY(roomName)
+    PRIMARY KEY(roomID)
 );
 
 CREATE TABLE User_Data (
-    userDataID INT AUTO_INCREMENT,
+    uID INT AUTO_INCREMENT,
     roomID : TEXT,
     user : TEXT,
-    userData : TEXT,
-    PRIMARY KEY(userDataID,roomID),
+    List : TEXT,
+    PRIMARY KEY(uID,roomID),
     FOREIGN KEY(roomID) REFERENCES Rooms(roomID) ON DELETE CASCADE
 );
 

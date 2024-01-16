@@ -1,6 +1,7 @@
 import express from 'express'
 import sqlite3 from 'sqlite3'
 import cors from 'cors'
+import fs from 'fs'
 
 
 const app = express()
@@ -14,12 +15,25 @@ const db = new sqlite3.Database('./src/db/want2play.db', (err) => {
 
 // init table 
 //db.run('DROP TABLE sessions')
-const tablesql = `CREATE TABLE IF NOT EXISTS sessions 
-( room TEXT PRIMARY KEY,
-    createDate DATETIME NOT NULL,
-    user TEXT
-)`
-db.run(tablesql)
+const tablesql1 = `
+CREATE TABLE IF NOT EXISTS  Sessions (
+    roomID TEXT,
+    created DATETIME,
+    PRIMARY KEY(roomID)
+);
+`
+const tablesql2 = `
+CREATE TABLE IF NOT EXISTS User_Data (
+    roomID TEXT,
+    user TEXT,
+    list_item TEXT,
+    PRIMARY KEY(roomID,user,list_item),
+    FOREIGN KEY(roomID) REFERENCES Sessions(roomID) ON DELETE CASCADE
+);
+`
+
+db.run(tablesql1)
+db.run(tablesql2)
 
 app.use(express.json())
 app.use(cors())
@@ -39,30 +53,49 @@ app.get("/", (req, res) => {
     console.log('test', hasSession('4MgoMd'))
 });
 
-app.post("/testpost", (req, res) => {
+app.get("/testpost", (req, res) => {
 
-    const data = req.body
-    //TODO FIX
-    db.run('INSERT INTO gameList (name,data) VALUES (?)', [data['name'], { 'testpost': 2394723987 }], (err) => {
+    db.run('INSERT INTO Sessions (roomID,created) VALUES (?,?)', ['4MgoMd', new Date().toISOString()], (err) => {
         if (err) {
-            res.status(400).json({ error: err.message })
+            console.log(err)
             return
         }
-        res.send(data['name'])
+        console.log('success')
     })
+
+    db.run('INSERT INTO User_Data (roomID,user,list_item) VALUES (?,?,?)', ['4MgoMd', "{testuser:'shiterino'}", "shite"], (err) => {
+        if (err) {
+            console.log(err)
+            return
+        }
+        console.log('success')
+    })
+
+    db.run('INSERT INTO User_Data (roomID,user,list_item) VALUES (?,?,?)', ['4MgoMd', "{testuser:'shiterino'}", "lethal co"], (err) => {
+        if (err) {
+            console.log(err)
+            return
+        }
+        console.log('success')
+    })
+
+    db.run('INSERT INTO Sessions (roomID,created) VALUES (?,?)', ['aaabbb', new Date().toISOString()], (err) => {
+        if (err) {
+            console.log(err)
+            return
+        }
+        console.log('success')
+    })
+    res.send('done')
 })
 
 
-app.get("/reset", (req, res) => {
-    const sql = 'DROP TABLE sessions'
-    db.all(sql, [], (err) => {
-        if (err) {
-            throw err;
-        }
-        console.log('shit reset ')
-        res.send('shit reset')
-    });
-
+app.get("/drop", (req, res) => {
+    const drop = 'DROP TABLE Sessions;'
+    const drop2 = 'DROP TABLE User_Data;'
+    db.run(drop)
+    db.run(drop2)
+    res.send('dropped')
 })
 
 app.get("/read", (req, res) => {
@@ -80,73 +113,48 @@ app.get("/read", (req, res) => {
 
 })
 
-app.post("/whoRu", (req, res) => {
-
-
-    const room = req.body['room']
-
-    //does room exist?
-    //  yes - does user exist?
-    //      yes - take to their list 
-    //      no - new list
-    //  no -  new user; new list
-
-    const date = new Date();
-    const createDate = date.toISOString();
-
-    const name = req.body['name']
-    const password = req.body['password']
-    const user = { name: name, password: password }
-
-    hasSession(room, user)
-
-    res.status(200)
-
-    //    const sql = `INSERT INTO sessions (room,createDate,user) VALUES (?,?,?)`
-    //    db.run(sql, [room, createDate, JSON.stringify(user)], (err) => {
-    //        if (err) {
-    //            res.status(400).json({ error: err.message })
-    //            return
-    //        }
-    //    })
-    //    console.log(room, createDate, user)
-})
-
-
-
-function hasSession(room = null, user = null) {
-    //get all sessions available right now
-    db.all('SELECT * FROM sessions', (err, rows) => {
-        // check if room is in db 
-        // check if user is in room
-        // yes- navigate to /genID/name 
-        // no - add {user: user, data: ""} to the db under the room data section
-        //rows.filter((row) => console.log(row['user']))
-        console.log(rows)
-
-        //        rows.forEach((row) => {
-        //            try {
-        //
-        //                const data = (row)
-        //                if (room != data['room']) { console.log('not in this hoe2'); return 0 }
-        //
-        //                const name = JSON.parse(row['user'])['name']
-        //                const pass = JSON.parse(row['user'])['password']
-        //                console.log('usercheck:', user, { name: name, password: pass })
-        //                if (JSON.stringify(user) != JSON.stringify({ name: name, password: pass })) { console.log('no user in sight') }
-        //
-        //
-        //                console.log(data)
-        //                console.log('name:', name, ', pass:', pass)
-        //
-        //
-        //            } catch (error) {
-        //                console.log('no session')
-        //                return 0
-        //            }
-        //        })
-        //        return 0
-    })
+function hasSession(room) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM sessions', (err, rows) => {
+            if (err) {
+                reject(err); // Rejects the promise in case of error
+            } else {
+                let sessionFound = false;
+                for (const row of rows) {
+                    if (room == row['roomID']) {
+                        sessionFound = true;
+                        break; // Exit the loop if the session is found
+                    }
+                }
+                resolve(sessionFound); // Resolves the promise with the result
+            }
+        });
+    });
 }
+
+app.post("/whoRu", (req, res) => {
+    const room = req.body['room'];
+    const date = new Date();
+
+    hasSession(room).then(flag => {
+        if (flag) {
+            console.log('session Exists')
+            res.status(200).send('Session Already Exists');
+        } else {
+            db.run('INSERT INTO Sessions (roomID,created) VALUES (?,?)', [room, date.toISOString()], (err) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send('Error while inserting session');
+                } else {
+                    console.log('success');
+                    res.status(200).send('Session created');
+                }
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+        res.status(500).send('Database error');
+    });
+});
 
 app.listen(8080);
