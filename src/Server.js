@@ -176,11 +176,14 @@ const io = new Server(server, {
 io.on('connection', async (socket) => {
     const user_room = socket.request._query['roomID']
     const user_name = socket.request._query['name']
+    const user_pass = socket.request._query['pass']
     console.log('user (', user_name, ') connected to room:', user_room);
 
     updateReq(socket, user_room)
 
     socket.on('item_added', (data) => {
+        addItem(user_room, user, data['new_item'])
+        updateReq(socket, user_room)
         console.log('item added', data)
     })
 
@@ -207,6 +210,17 @@ async function updateReq(socket, user_room) {
     }
 }
 
+async function addItem(roomID, user, item) {
+
+    await db.run('INSERT INTO User_Data (roomID,user,list_item) VALUES (?,?,?)', [roomID, user, item], (err) => {
+        if (err) { console.log('add item err:', err) }
+        else {
+            console.log('item added to db')
+        }
+
+    })
+
+}
 
 function getData(room) {
     return new Promise((resolve, reject) => {
