@@ -1,10 +1,14 @@
 import express from 'express'
+import http from 'http'
 import sqlite3 from 'sqlite3'
 import cors from 'cors'
 import fs from 'fs'
+import { Server } from 'socket.io'
+import { writeFile } from 'fs/promises'
 
 
 const app = express()
+const server = http.createServer(app)
 
 const db = new sqlite3.Database('./src/db/want2play.db', (err) => {
     if (err) {
@@ -39,7 +43,7 @@ app.use(express.json())
 app.use(cors())
 app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
-        res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // replace with the origin you want to allow
+        res.header("Access-Control-Allow-Origin", ["http://localhost:5173", "http://localhost:8080"]); // replace with the origin you want to allow
         res.header("Access-Control-Allow-Headers", "origin, x-requested-with, content-type, accept, authorization");
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
         res.status(200);
@@ -95,20 +99,20 @@ app.get("/drop", (req, res) => {
     const drop2 = 'DROP TABLE User_Data;'
     db.run(drop)
     db.run(drop2)
-    res.send('dropped')
+
+    db.run(tablesql1)
+    db.run(tablesql2)
+    res.send('dropped and reset')
 })
 
 app.get("/read", (req, res) => {
+
     const sql = 'SELECT * FROM sessions'
     db.all(sql, [], (err, rows) => {
         if (err) {
             throw err;
         }
-        rows.forEach((row) => {
-            console.log(row.name);
-        });
-        console.log(rows)
-        res.send('done')
+        res.json(rows)
     });
 
 })
@@ -136,6 +140,7 @@ app.post("/whoRu", (req, res) => {
     const room = req.body['room'];
     const date = new Date();
 
+    //if db doesn't have session then add it
     hasSession(room).then(flag => {
         if (flag) {
             console.log('session Exists')
@@ -157,4 +162,61 @@ app.post("/whoRu", (req, res) => {
     });
 });
 
-app.listen(8080);
+server.listen(8080);
+
+
+const io = new Server(server, {
+    cors: {
+        origin: server,
+        methods: ["GET", "POST"]
+    },
+})
+
+
+io.on('connection', async (socket) => {
+    const user_room = socket.request._query['roomID']
+    const user_name = socket.request._query['name']
+    console.log('user (', user_name, ') connected to room:', user_room);
+
+    updateReq(socket, user_room)
+
+    socket.on('item_added', (data) => {
+        console.log('item added', data)
+    })
+
+    socket.on('item_deleted', (data) => {
+        console.log('item deleted', data)
+    })
+
+    socket.on('update_lists', (data) => {
+        console.log('update list', data)
+    })
+})
+
+async function updateReq(socket, user_room) {
+
+    try {
+        const data = await getData(user_room)
+        socket.emit('update_request', {
+            data: data
+        })
+
+    } catch (error) {
+        console.log('err in getting data')
+
+    }
+}
+
+
+function getData(room) {
+    return new Promise((resolve, reject) => {
+        db.all(`SELECT * FROM User_Data WHERE roomID="${room}"`, (err, rows) => {
+            if (err) {
+                console.log(err)
+                reject('error'); // Rejects the promise in case of error
+            } else {
+                resolve(rows); // Resolves the promise with the result
+            }
+        });
+    });
+}
