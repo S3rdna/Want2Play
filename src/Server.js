@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS  Sessions (
     PRIMARY KEY(roomID)
 );
 `
+
 const tablesql2 = `
 CREATE TABLE IF NOT EXISTS User_Data (
     roomID TEXT,
@@ -51,10 +52,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// TESTING AREA ****************************************************************************
 app.get("/", (req, res) => {
     res.send("hello world");
-
-    console.log('test', hasSession('4MgoMd'))
 });
 
 app.get("/testpost", (req, res) => {
@@ -99,14 +99,12 @@ app.get("/drop", (req, res) => {
     const drop2 = 'DROP TABLE User_Data;'
     db.run(drop)
     db.run(drop2)
-
     db.run(tablesql1)
     db.run(tablesql2)
     res.send('dropped and reset')
 })
 
 app.get("/read", (req, res) => {
-
     const sql = 'SELECT * FROM sessions'
     db.all(sql, [], (err, rows) => {
         if (err) {
@@ -114,9 +112,12 @@ app.get("/read", (req, res) => {
         }
         res.json(rows)
     });
-
 })
 
+
+// END OF TESTING *********************************************************************
+
+// helper function for /whoRu
 function hasSession(room) {
     return new Promise((resolve, reject) => {
         db.all('SELECT * FROM sessions', (err, rows) => {
@@ -136,6 +137,7 @@ function hasSession(room) {
     });
 }
 
+// request to add room to db
 app.post("/whoRu", (req, res) => {
     const room = req.body['room'];
     const date = new Date();
@@ -165,6 +167,7 @@ app.post("/whoRu", (req, res) => {
 server.listen(8080);
 
 
+//starting socketio implementation
 const io = new Server(server, {
     cors: {
         origin: server,
@@ -176,18 +179,20 @@ const io = new Server(server, {
 io.on('connection', async (socket) => {
     const user_room = socket.request._query['roomID']
     const user_name = socket.request._query['name']
-    const user_pass = socket.request._query['pass']
     console.log('user (', user_name, ') connected to room:', user_room);
 
+    //update request on join AKA user sync up
     updateReq(socket, user_room)
 
     socket.on('item_added', (data) => {
-        addItem(user_room, user, data['new_item'])
+        addItem(data['roomID'], data['user'], data['new_item'])
         updateReq(socket, user_room)
         console.log('item added', data)
     })
 
     socket.on('item_deleted', (data) => {
+        deleteItem(data['roomID'], data['user'], data['deleted_item'])
+        updateReq(socket, user_room)
         console.log('item deleted', data)
     })
 
@@ -197,29 +202,34 @@ io.on('connection', async (socket) => {
 })
 
 async function updateReq(socket, user_room) {
-
     try {
+        console.log('requesting update...')
         const data = await getData(user_room)
         socket.emit('update_request', {
             data: data
         })
-
     } catch (error) {
-        console.log('err in getting data')
-
+        console.log('err in request', error)
     }
 }
 
 async function addItem(roomID, user, item) {
-
-    await db.run('INSERT INTO User_Data (roomID,user,list_item) VALUES (?,?,?)', [roomID, user, item], (err) => {
+    db.run('INSERT INTO User_Data (roomID,user,list_item) VALUES (?,?,?)', [roomID, user, item], (err) => {
         if (err) { console.log('add item err:', err) }
         else {
-            console.log('item added to db')
+            console.log('item added to db', { roomID: roomID, user: user, newitem: item })
         }
-
     })
+}
 
+async function deleteItem(roomID, user, item) {
+    console.log('inside delete item', roomID, user, item)
+    db.run('DELETE FROM User_Data WHERE roomID= ? AND user= ? AND list_item= ?', [roomID, user, item], (err) => {
+        if (err) { console.log('add item err:', err) }
+        else {
+            console.log('item removed from db', { roomID: roomID, user: user, deleted_item: item })
+        }
+    })
 }
 
 function getData(room) {

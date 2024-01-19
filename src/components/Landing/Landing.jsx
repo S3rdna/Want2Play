@@ -16,8 +16,8 @@ class Landing extends Component {
         pageURL: getCode(window.location.href),
         flag: false,
         name: 'placeholder',
+        pass: '',
         error: null
-
     };
 
     componentDidMount() {
@@ -28,12 +28,13 @@ class Landing extends Component {
 
     goToList = () => {
         const inpName = document.getElementById('nameInput').value.replace(" ", "");
+        const inpPass = document.getElementById('passInput').value;
         //TODO: figure out what to do about spaces
         if (inpName == "") { console.log("returned"); return }
         //TODO: implement password 
         //whoRU()
         //addToSocket()
-        this.setState({ name: inpName, flag: true })
+        this.setState({ name: inpName, pass: inpPass, flag: true })
 
     }
 
@@ -75,12 +76,14 @@ class Landing extends Component {
 
     render() {
 
-        let { pageURL, flag, name } = this.state
+        let { pageURL, flag, name, pass } = this.state
+        const obj = { [name]: pass }
+        const user = JSON.stringify(obj)
 
         return (
 
             <>
-                {flag && (< Navigate to={`/${pageURL}/${name}`} element={<List />} />)}
+                {flag && (< Navigate to={`/${pageURL}/${name}`} state={{ user: user }} element={<List />} />)}
                 <h2>Want to play: {this.state.pageURL}</h2>
                 <label>Who are you? <input placeholder="Name" id="nameInput" /></label>
                 <br />

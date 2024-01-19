@@ -3,30 +3,44 @@ import { Link, useLocation } from 'react-router-dom';
 import './List.css';
 import io from 'socket.io-client'
 
-function List() {
+function List(props) {
     const [games, setGames] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [noItemFlag, setNoItemFlag] = useState(false);
     const loc = useLocation();
     const name = loc.pathname.split("/")[2];
+    const [user, setUser] = useState('')
     const roomID = loc.pathname.split("/")[1];
     const [socket, setSocket] = useState(null);
 
+    console.log('user', user)
+
     useEffect(() => {
-        const queryString = `name=${name}&roomID=${roomID}`
+
+        // keeping user in state
+        // TODO: This fucks up when user refreshes page
+        console.log('big testign', loc.state.user, user)
+        setUser(loc.state.user ?? user)
+
+        // connect to socket server
+        const queryString = `roomID=${roomID}&name=${name}`
         const socket = io("http://localhost:8080", { query: queryString, })
         setSocket(socket)
+
         socket.on('update_request', (data) => {
             //get data from server and update list 
-            console.log('update requested', data['data'])
+            const holding = data['data']
+            const update_arr = holding.filter((ele) => ele['user'] == user)
+            const update_games_arr = update_arr.map((ele) => ele['list_item'])
+            setGames([...update_games_arr])
         })
-        socket.on('item_added', () => { console.log('item_added in client ') })
-        //socket.on('item_deleted')
 
         return () => {
             socket.disconnect();
         }
-    }, [name, roomID])
+
+    }, [name, roomID, user])
+
 
 
     const handleOnChange = (event) => {
@@ -43,7 +57,7 @@ function List() {
         if (inputValue !== "") {
             setGames([...games, inputValue]);
             //change to post request that will emit from server the value that needs to be added to all users 
-            socket.emit('item_added', { name: name, new_item: inputValue })
+            socket.emit('item_added', { roomID: roomID, user: user, new_item: inputValue })
             //might remove under 
             setInputValue('');
             setNoItemFlag(false)
@@ -54,7 +68,8 @@ function List() {
         setGames(games.filter((g) => {
             return g !== game
         }))
-        socket.emit('item_deleted', { name: name, deleted_item: game, index: index })
+        console.log('deleting', game)
+        socket.emit('item_deleted', { roomID: roomID, user: user, deleted_item: game })
     };
 
     const listItems = games.map((game, index) => (
