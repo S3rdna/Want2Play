@@ -153,7 +153,7 @@ app.post("/whoRu", (req, res) => {
                     console.log(err);
                     res.status(500).send('Error while inserting session');
                 } else {
-                    console.log('success');
+                    console.log('success: room created');
                     res.status(200).send('Session created');
                 }
             });
@@ -187,17 +187,11 @@ io.on('connection', async (socket) => {
     socket.on('item_added', (data) => {
         addItem(data['roomID'], data['user'], data['new_item'])
         updateReq(socket, user_room)
-        console.log('item added', data)
     })
 
     socket.on('item_deleted', (data) => {
         deleteItem(data['roomID'], data['user'], data['deleted_item'])
         updateReq(socket, user_room)
-        console.log('item deleted', data)
-    })
-
-    socket.on('update_lists', (data) => {
-        console.log('update list', data)
     })
 })
 

@@ -13,13 +13,12 @@ function List(props) {
     const roomID = loc.pathname.split("/")[1];
     const [socket, setSocket] = useState(null);
 
-    console.log('user', user)
 
     useEffect(() => {
 
         // keeping user in state
         // TODO: This fucks up when user refreshes page
-        console.log('big testign', loc.state.user, user)
+        //console.log('big testign', loc.state.user, user)
         setUser(loc.state.user ?? user)
 
         // connect to socket server
@@ -64,7 +63,7 @@ function List(props) {
         } else { setNoItemFlag(true) }
     };
 
-    const deleteGameButtonHandle = (game, index) => {
+    const deleteGameButtonHandle = (game) => {
         setGames(games.filter((g) => {
             return g !== game
         }))

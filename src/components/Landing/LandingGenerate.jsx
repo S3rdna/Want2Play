@@ -6,7 +6,7 @@ class LandingGenerate extends Component {
 
     render() {
         const genId = generateID()
-        return <Navigate to={`/${genId}`} element={<Landing />} />
+        return (<Navigate to={`/${genId}`} element={<Landing />} />)
     }
 }
 
@@ -17,7 +17,6 @@ function generateID() {
     for (let i = 0; i < 6; i++) {
         id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    console.log("test", id);
     return id;
 }
 

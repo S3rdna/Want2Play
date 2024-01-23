@@ -7,8 +7,8 @@ class Landing extends Component {
 
     constructor() {
         super()
-        this.whoRU = this.whoRU.bind(this);
         this.goToList = this.goToList.bind(this);
+        this.login = this.login.bind(this);
     }
 
 
@@ -38,27 +38,27 @@ class Landing extends Component {
 
     }
 
-    whoRU() {
-        //check if person exists in rooms table 
+    login() {
 
         const inpName = document.getElementById('nameInput').value.replace(" ", "");
+        const inpPass = document.getElementById('passInput').value;
         if (inpName == "") { console.log("returned"); return }
-
-        const inpPass = document.getElementById('passInput').value.replace(" ", "");
+        const user = {}
+        user[inpName] = inpPass
         const room = this.state.pageURL
 
+        //check of person exists in shit 
         axios.post('http://localhost:8080/whoRu', {
-            name: inpName,
-            password: inpPass,
             room: room,
         }).then((res) => {
-            const t2 = res
-            console.log("in react", t2)
+            if (!res.status === 200) { console.log('something happened'); return }
+            this.setState({ name: inpName, pass: inpPass, flag: true })
         }).catch((err) => {
             console.log(err)
         })
-        console.log("whoRU is done")
+
     }
+
 
     gettest() {
         axios.get('http://localhost:8080/read').then((res) => {
@@ -89,11 +89,8 @@ class Landing extends Component {
                 <br />
                 <label>Password <input placeholder="Optional" id="passInput" /></label>
                 <br />
-                <button onClick={this.goToList}>lol</button>
-                <button onClick={this.whoRU}>psot</button>
-                <button onClick={this.gettest}>get</button>
-                <br />
-                <button onClick={this.resethandle}>reset</button>
+                <button onClick={this.login}>lol</button>
+                <button onClick={this.gettest}>lmao</button>
             </>
         )
     }
