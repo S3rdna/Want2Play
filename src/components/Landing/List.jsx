@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './List.css';
 import io from 'socket.io-client'
+import OthersList from './OthersList';
 
 function List(props) {
     const [games, setGames] = useState([]);
@@ -82,16 +83,21 @@ function List(props) {
                 <button onClick={shareButtonHandle}>share</button>
             </nav>
 
-            <strong><h3>{name}</h3></strong>
-            <h4>room name {roomID}</h4>
-            <ul>{listItems}</ul>
-            <input type="text" value={inputValue} onChange={handleOnChange} />
-            <br />
-            <button onClick={addGameButtonHandle}>add game</button>
-            <button onClick={deleteGameButtonHandle}>delete game</button>
-
-            <br />
-            {noItemFlag && <h4>No item to add!</h4>}
+            <div className='row'>
+                <div className='me'>
+                    <strong><h3>{name}</h3></strong>
+                    <h4>room name {roomID}</h4>
+                    <ul>{listItems}</ul>
+                    <input type="text" value={inputValue} onChange={handleOnChange} />
+                    <br />
+                    <button onClick={addGameButtonHandle}>add game</button>
+                    <button onClick={deleteGameButtonHandle}>delete game</button>
+                    <br />
+                    {noItemFlag && <h4>No item to add!</h4>}
+                </div>
+                <div className='vertline' />
+                <OthersList data={[{ name: ['one', 'two', 'three', 'four'] }, { name2: ['this', 'shit', 'sucks', 'ass'] }, { andi: ['is', 'going', 'to', 'be', 'my'] }]} me={name} />
+            </div>
         </>
     );
 }

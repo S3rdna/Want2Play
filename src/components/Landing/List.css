@@ -14,3 +14,25 @@ ul {
     flex-direction: column;
     align-items: center;
 }
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.vertline {
+    outline-style: solid;
+    height: 20vh;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+.me {
+    flex-grow: 1;
+}
+
+.them {
+    flex-grow: 2;
+    outline-style: solid;
+    outline-width: 2px;
+}
