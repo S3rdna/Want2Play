@@ -7,15 +7,22 @@ export default function OthersList(props) {
 
     const [data, setData] = useState(props.data)
 
+    useEffect(() => {
+        console.log('ohterfile test ', Object.entries(props.data))
+        setData(props.data)
+        return () => {
+        }
+    }, [props.data])
+
     const temp = data.map((ele) => {
         const name = Object.entries(ele)[0][0]
         const list = Object.entries(ele)[0][1]
-        console.log(name, list, props.me)
+        console.log('ohter file ', name, list, props.me)
         return (
-            <>
+            <div className='col' key={name} style={{ margin: "2vw" }}>
                 <h3>{name}</h3>
                 <ul>{list.map((game) => { return (<li key={game}>{game}</li>) })}</ul>
-            </>
+            </div>
         )
     })
 
@@ -60,7 +67,9 @@ export default function OthersList(props) {
         <div className='them'>
             <div>OthersList</div>
             <br />
-            {temp}
+            <div className='row'>
+                {temp}
+            </div>
         </div>
     )
 }

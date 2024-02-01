@@ -13,6 +13,7 @@ function List(props) {
     const [user, setUser] = useState('')
     const roomID = loc.pathname.split("/")[1];
     const [socket, setSocket] = useState(null);
+    const [otherData, setOtherData] = useState([])
 
 
     useEffect(() => {
@@ -29,10 +30,26 @@ function List(props) {
 
         socket.on('update_request', (data) => {
             //get data from server and update list 
+
             const holding = data['data']
             const update_arr = holding.filter((ele) => ele['user'] == user)
             const update_games_arr = update_arr.map((ele) => ele['list_item'])
             setGames([...update_games_arr])
+
+            const temp = data['data']
+            const final_data = {}
+            const others_arr = temp.filter((ele) => ele['user'] != user)
+            console.log('others_arr', others_arr)
+            const names = others_arr.map((ele) => ele['user'])
+            console.log('names', names)
+            others_arr.forEach((e) => {
+                const u = e['user']
+                const g = e['list_item']
+                if (final_data[u] == null) { console.log('inhere'); final_data[u] = [g] }
+                else { final_data[u] = [...final_data[u], g] }
+            })
+            setOtherData(final_data)
+
         })
 
         return () => {
@@ -40,8 +57,6 @@ function List(props) {
         }
 
     }, [name, roomID, user])
-
-
 
     const handleOnChange = (event) => {
         setInputValue(event.target.value);
@@ -76,6 +91,8 @@ function List(props) {
         <li key={index}><a href='#' onClick={() => deleteGameButtonHandle(game, index)}>{game}</a></li>
     ));
 
+
+
     return (
         <>
             <nav>
@@ -91,12 +108,11 @@ function List(props) {
                     <input type="text" value={inputValue} onChange={handleOnChange} />
                     <br />
                     <button onClick={addGameButtonHandle}>add game</button>
-                    <button onClick={deleteGameButtonHandle}>delete game</button>
                     <br />
                     {noItemFlag && <h4>No item to add!</h4>}
                 </div>
                 <div className='vertline' />
-                <OthersList data={[{ name: ['one', 'two', 'three', 'four'] }, { name2: ['this', 'shit', 'sucks', 'ass'] }, { andi: ['is', 'going', 'to', 'be', 'my'] }]} me={name} />
+                <OthersList data={otherData} me={name} />
             </div>
         </>
     );

@@ -199,6 +199,7 @@ async function updateReq(socket, user_room) {
     try {
         console.log('requesting update...')
         const data = await getData(user_room)
+        console.log(data)
         socket.emit('update_request', {
             data: data
         })
