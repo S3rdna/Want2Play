@@ -8,61 +8,29 @@ export default function OthersList(props) {
     const [data, setData] = useState(props.data)
 
     useEffect(() => {
+        console.log('useeffect test 1',props.data)
+        console.log('useeffect test 2',Object.entries(props.data))
         console.log('ohterfile test ', Object.entries(props.data))
-        setData(props.data)
+        setData(Object.entries(props.data));
         return () => {
         }
     }, [props.data])
 
-    const temp = data.map((ele) => {
-        const name = Object.entries(ele)[0][0]
-        const list = Object.entries(ele)[0][1]
-        console.log('ohter file ', name, list, props.me)
+    const temp = data.map((ele, index) => {
+        const names = ele[0]
+        const games  = ele[1]
+        console.log('ohter file index:',index, names,games)
         return (
-            <div className='col' key={name} style={{ margin: "2vw" }}>
-                <h3>{name}</h3>
-                <ul>{list.map((game) => { return (<li key={game}>{game}</li>) })}</ul>
+
+            <>
+            <div className='col'>
+            <h3>{names}</h3>
+            <ul>{games.map((e) => (<li>{e}</li>))}</ul>
             </div>
+            </>
         )
     })
 
-
-
-    //const temp = Object.entries(allLists).map((key, value) => (
-    //    <>
-    //        <li key={key[0]}>{key[1]}</li>
-    //    </>
-    //))
-    // const [games, setGames] = useState([]);
-    // const [socket, setSocket] = useState(null);
-    // const [room, setRoom] = useState(this.props.room);
-
-
-    //useeffect(() => {
-
-    //    // keeping user in state
-    //    // TODO: This fucks up when user refreshes page
-    //    //console.log('big testign', loc.state.user, user)
-
-    //    console.log('testing room',room)
-    //    // connect to socket server
-    //    const queryString = `roomID=${room}`
-    //    const socket = io("http://localhost:8080", { query: queryString, })
-    //    setSocket(socket)
-
-    //    socket.on('update_request', (data) => {
-    //        //get data from server and update list 
-    //        const holding = data['data']
-    //        const update_arr = holding.filter((ele) => ele['user'] == user)
-    //        const update_games_arr = update_arr.map((ele) => ele['list_item'])
-    //        setGames([...update_games_arr])
-    //    })
-
-    //    return () => {
-    //        socket.disconnect();
-    //    }
-
-    //}, [name, roomID, user])
     return (
         <div className='them'>
             <div>OthersList</div>

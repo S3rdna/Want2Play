@@ -63,7 +63,7 @@ function List(props) {
     };
 
     const shareButtonHandle = () => {
-        const link = window.location.href.slice(0, -(name.length + 2))
+        const link = window.location.href.slice(0, -(name.length + 1))
         navigator.clipboard.writeText(link)
         console.log(link);
     };

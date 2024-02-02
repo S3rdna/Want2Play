@@ -19,6 +19,10 @@ ul {
     display: flex;
     flex-direction: row;
 }
+.col {
+    display: flex;
+    flex-direction: column;
+}
 
 .vertline {
     outline-style: solid;
