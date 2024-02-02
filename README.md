@@ -1,8 +1,5 @@
-# React + Vite
+The point of this project is to help people come to a consensus. The original usecase was for video games but the premise can be expanded on.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a side project to help me learn about node,socket.io,sqlite, and react. If you have any ideas on how to make this better or want to reach out in any way my email is aaguilar8079@gmail.com
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
